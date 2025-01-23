@@ -702,7 +702,12 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(BASE_URL + '/dataset.csv')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    console.error('Response status:', response.status);
+                    console.error('Response status text:', response.statusText);
+                    return response.text().then(text => {
+                        console.error('Response body:', text);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    });
                 }
                 return response.text();
             })
@@ -760,9 +765,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(error => {
-                console.error('Error loading dataset:', error);
+                console.error('Fetch error:', error);
                 document.getElementById('status').textContent = `Error: ${error.message}`;
-                alert('Error loading dataset: ' + error.message);
             });
     }
 

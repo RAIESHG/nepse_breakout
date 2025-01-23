@@ -3,12 +3,26 @@ const fs = require('fs').promises;
 
 exports.handler = async function(event, context) {
   try {
-    const requestPath = event.path === '/.netlify/functions/server' 
-      ? '/index.html' 
-      : event.path;
+    // Remove /.netlify/functions/server from the path if present
+    const requestPath = event.path.replace('/.netlify/functions/server', '') || '/index.html';
+    
+    // Log the requested path for debugging
+    console.log('Requested path:', requestPath);
 
     // Read the file from the project root
     const filePath = path.join(__dirname, '../..', requestPath);
+    console.log('Attempting to read:', filePath);
+
+    if (requestPath === '/health') {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          status: 'ok',
+          time: new Date().toISOString()
+        })
+      };
+    }
+
     const data = await fs.readFile(filePath);
     
     // Set content type based on file extension
@@ -24,13 +38,19 @@ exports.handler = async function(event, context) {
       statusCode: 200,
       body: data.toString(),
       headers: {
-        'Content-Type': contentType
+        'Content-Type': contentType,
+        'Cache-Control': 'no-cache'
       }
     };
   } catch (error) {
+    console.error('Error serving file:', error);
     return {
       statusCode: 404,
-      body: 'File not found'
+      body: JSON.stringify({
+        error: 'File not found',
+        path: event.path,
+        message: error.message
+      })
     };
   }
 }; 

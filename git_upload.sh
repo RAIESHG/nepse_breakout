@@ -8,4 +8,4 @@ git add .
 git commit -m "Update $(date)"
 
 # Push to main branch
-git push origin main
+git push
