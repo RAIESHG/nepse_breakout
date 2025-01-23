@@ -1,3 +1,7 @@
+const BASE_URL = window.location.hostname === 'localhost' 
+  ? '' 
+  : '/.netlify/functions/server';
+
 document.addEventListener('DOMContentLoaded', function () {
     const stockSymbols = [
         "ACLBSL", "ADBL", "AHL", "AHPC", "AKJCL", "AKPL", "ALBSL", "ALICL", "ALICLP", "ANLB",
@@ -695,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function () {
         candleSeries.setData([]);
         volumeSeries.setData([]);
 
-        fetch('/.netlify/functions/getDataset')
+        fetch(BASE_URL + '/dataset.csv')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -859,7 +863,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function fetchDataset() {
-        const response = await fetch('/.netlify/functions/getDataset');
+        const response = await fetch(BASE_URL + '/dataset.csv');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
