@@ -1,0 +1,13 @@
+{
+  "name": "stock-chart-app",
+  "version": "1.0.0",
+  "description": "Stock Chart Application",
+  "scripts": {
+    "start": "netlify dev",
+    "build": "# no build step needed"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "netlify-cli": "^12.0.0"
+  }
+} 
