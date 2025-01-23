@@ -19,32 +19,26 @@ exports.handler = async function(event, context) {
 
     console.log('Processing request for path:', requestPath);
 
-    // Health check endpoint
-    if (requestPath === 'health') {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          status: 'ok',
-          time: new Date().toISOString(),
-          cwd: process.cwd(),
-          files: await fs.readdir(path.join(__dirname, '../../public'))
-        })
-      };
-    }
+    // Debug info
+    console.log('Current directory:', process.cwd());
+    console.log('__dirname:', __dirname);
 
     // Construct the file path relative to the public directory
-    const filePath = path.join(__dirname, '../../public', requestPath);
-    console.log('Attempting to read:', filePath);
+    const publicPath = path.join(__dirname, '../../public');
+    const filePath = path.join(publicPath, requestPath);
+    
+    console.log('Public directory:', publicPath);
+    console.log('Full file path:', filePath);
 
-    // List directory contents for debugging
-    const dirPath = path.dirname(filePath);
+    // List files in public directory
     try {
-      const files = await fs.readdir(dirPath);
-      console.log('Files in directory:', dirPath, files);
+      const files = await fs.readdir(publicPath);
+      console.log('Files in public directory:', files);
     } catch (e) {
-      console.error('Error listing directory:', e);
+      console.error('Error reading public directory:', e);
     }
 
+    // Read the file
     const data = await fs.readFile(filePath);
     
     // Set content type based on file extension
@@ -71,7 +65,6 @@ exports.handler = async function(event, context) {
     console.error('Error serving file:', {
       error: error.message,
       path: event.path,
-      requestPath: requestPath,
       cwd: process.cwd(),
       dirname: __dirname
     });
@@ -81,7 +74,9 @@ exports.handler = async function(event, context) {
       body: JSON.stringify({
         error: 'File not found',
         path: event.path,
-        message: error.message
+        message: error.message,
+        cwd: process.cwd(),
+        dirname: __dirname
       }),
       headers: {
         'Content-Type': 'application/json',
