@@ -14,31 +14,37 @@ exports.handler = async function(event, context) {
       requestPath = '/index.html';
     }
 
-    // Log for debugging
+    // Remove leading slash if present
+    requestPath = requestPath.replace(/^\/+/, '');
+
     console.log('Processing request for path:', requestPath);
 
     // Health check endpoint
-    if (requestPath === '/health') {
+    if (requestPath === 'health') {
       return {
         statusCode: 200,
         body: JSON.stringify({
           status: 'ok',
-          time: new Date().toISOString()
+          time: new Date().toISOString(),
+          cwd: process.cwd(),
+          files: await fs.readdir(path.join(__dirname, '../../public'))
         })
       };
     }
 
-    // Construct the file path relative to the project root
-    const filePath = path.join(__dirname, '../..', requestPath);
-    console.log('Attempting to read file:', filePath);
+    // Construct the file path relative to the public directory
+    const filePath = path.join(__dirname, '../../public', requestPath);
+    console.log('Attempting to read:', filePath);
 
-    // Check if file exists and is not a directory
-    const stats = await fs.stat(filePath);
-    if (stats.isDirectory()) {
-      throw new Error('Path is a directory');
+    // List directory contents for debugging
+    const dirPath = path.dirname(filePath);
+    try {
+      const files = await fs.readdir(dirPath);
+      console.log('Files in directory:', dirPath, files);
+    } catch (e) {
+      console.error('Error listing directory:', e);
     }
 
-    // Read the file
     const data = await fs.readFile(filePath);
     
     // Set content type based on file extension
@@ -57,7 +63,6 @@ exports.handler = async function(event, context) {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'no-cache',
-        // Add CORS headers if needed
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type'
       }
@@ -66,7 +71,9 @@ exports.handler = async function(event, context) {
     console.error('Error serving file:', {
       error: error.message,
       path: event.path,
-      stack: error.stack
+      requestPath: requestPath,
+      cwd: process.cwd(),
+      dirname: __dirname
     });
 
     return {

@@ -699,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function () {
         candleSeries.setData([]);
         volumeSeries.setData([]);
 
-        fetch(BASE_URL + '/dataset.csv')
+        fetch(BASE_URL + 'dataset.csv')
             .then(response => {
                 if (!response.ok) {
                     console.error('Response status:', response.status);
@@ -867,7 +867,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function fetchDataset() {
-        const response = await fetch(BASE_URL + '/dataset.csv');
+        const response = await fetch(BASE_URL + 'dataset.csv');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

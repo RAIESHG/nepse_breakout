@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Ensure public directory exists
+mkdir -p public
 
 # Add all files
 git add .
